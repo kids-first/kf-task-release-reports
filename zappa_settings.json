@@ -1,0 +1,25 @@
+{
+    "dev": {
+        "debug": true,
+        "app_function": "service.app",
+        "project_name": "kf-task-release-reports",
+        "binary_support": false,
+        "aws_environment_variables" : {
+        }
+    },
+    "qa": {
+        "app_function": "service.app",
+        "profile_name": "default",
+        "project_name": "kf-task-release-reports",
+        "binary_support": false,
+        "aws_environment_variables" : {
+        }
+    },
+    "prd": {
+        "app_function": "service.app",
+        "project_name": "kf-task-release-reports",
+        "binary_support": false,
+        "aws_environment_variables" : {
+        }
+    }
+}
