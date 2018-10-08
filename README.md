@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/release_reports_logo.png" alt="Release Reports">
+</p>
+
 # Kids First Release Report Task Service
 
 The Release Report task service runs as part of a release to summarize the
