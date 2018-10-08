@@ -1,5 +1,6 @@
 from flask import Flask, Blueprint, current_app, jsonify, request, abort
 from werkzeug.exceptions import HTTPException
+from . import tasks
 
 
 def create_app():
@@ -27,6 +28,9 @@ def create_app():
 
 api = Blueprint('api', __name__, url_prefix='')
 ALLOWED_ACTIONS = ['get_status', 'initialize', 'start', 'publish', 'cancel']
+ROUTES = {
+    'initialize': tasks.initialize
+}
 
 
 @api.route("/status", methods=['GET'])
@@ -42,7 +46,9 @@ def tasks():
     """
     RPC-like endpoint specified by the coordinator
     """
-    action = validate_action(request.get_json(force=True))
+    action, task_id, release_id = validate_action(request.get_json(force=True))
+    # Call into action
+    ROUTES[action](task_id, release_id)
     return jsonify({
         'status': 'ok'
     }), 200
@@ -52,21 +58,27 @@ def validate_action(body):
     if not body:
         abort(400, 'No body recieved in request')
 
-    if 'action' not in body or 'task_id' not in body:
-        abort(400, "Request body must include 'action' and 'task_id' fields")
+    if ('action' not in body or
+        'task_id' not in body or
+        'release_id' not in body):
+        abort(400, "Request body must include 'action', 'task_id', " +
+              "and 'release_id' fields")
 
     action = body['action']
     task_id = body['task_id']
+    release_id = body['release_id']
 
     if action not in ALLOWED_ACTIONS:
         abort(400, f"'{action}' is not a known action, "+
               'must be one of {",".join(ALLOWED_ACTIONS)}')
 
-    validate_task(task_id)
+    validate_kf_id(task_id, 'TA')
+    validate_kf_id(release_id, 'RE')
 
-    return action
+    return action, task_id, release_id
 
 
-def validate_task(task_id):
-    if len(task_id) != 11 or task_id[:3] != 'TA_':
-        abort(400, f"'{task_id}' is not a valid kf_id")
+def validate_kf_id(kf_id, prefix='TA'):
+    """ Abort if the kf_id does not have the right kf_id format """
+    if len(kf_id) != 11 or kf_id[:3] != prefix+'_':
+        abort(400, f"'{kf_id}' is not a valid kf_id")

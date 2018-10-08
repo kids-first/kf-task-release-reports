@@ -18,6 +18,6 @@ class Config():
     COORDINATOR_URL = os.environ.get('COORDINATOR_URL',
                                      'http://localhost:5001')
     DYNAMO_ENDPOINT = os.environ.get('DYNAMO_ENDPOINT',
-                                     'localhost:8050')
+                                     'http://localhost:8050')
     DYNAMO_TABLE = os.environ.get('DYNAMO_TABLE',
                                   'release-reports')
