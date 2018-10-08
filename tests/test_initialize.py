@@ -28,3 +28,13 @@ def test_initialize(client):
     assert float(resp['Item']['created_at']['N']) < datetime.now().timestamp()
     assert resp['Item']['task_id']['S'] == 'TA_00000000'
     assert resp['Item']['state']['S'] == 'initialized'
+
+    resp = client.post('/tasks', json={'action': 'get_status',
+                        'release_id': 'RE_00000000',
+                        'task_id': 'TA_00000000'})
+
+    assert resp.status_code == 200
+    assert resp.json['release_id'] == 'RE_00000000'
+    assert resp.json['task_id'] == 'TA_00000000'
+    assert resp.json['state'] == 'initialized'
+    assert type(resp.json['created_at']) is float

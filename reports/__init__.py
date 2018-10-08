@@ -1,11 +1,24 @@
-from flask import Flask, Blueprint, current_app, jsonify, request, abort
+import decimal
+from flask import Flask, Blueprint, current_app, jsonify, request, abort, json
 from werkzeug.exceptions import HTTPException
 from . import tasks
+
+
+class DynamoJSON(json.JSONEncoder):
+
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            if o % 1 > 0:
+                return float(o)
+            else:
+                return int(o)
+        return super(DecimalEncoder, self).default(o)
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
+    app.json_encoder = DynamoJSON
 
     @app.errorhandler(400)
     def json_error(error):
@@ -29,6 +42,7 @@ def create_app():
 api = Blueprint('api', __name__, url_prefix='')
 ALLOWED_ACTIONS = ['get_status', 'initialize', 'start', 'publish', 'cancel']
 ROUTES = {
+    'get_status': tasks.get_status,
     'initialize': tasks.initialize
 }
 
@@ -48,10 +62,7 @@ def tasks():
     """
     action, task_id, release_id = validate_action(request.get_json(force=True))
     # Call into action
-    ROUTES[action](task_id, release_id)
-    return jsonify({
-        'status': 'ok'
-    }), 200
+    return ROUTES[action](task_id, release_id)
 
 
 def validate_action(body):
