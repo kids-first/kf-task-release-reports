@@ -1,6 +1,6 @@
 import datetime
 import boto3
-from flask import current_app
+from flask import current_app, jsonify
 
 
 def initialize(task_id, release_id):
@@ -27,3 +27,9 @@ def initialize(task_id, release_id):
         ReturnValues='NONE',
         ReturnConsumedCapacity='NONE',
     )
+
+    return jsonify({
+        'task_id': task_id,
+        'release_id': release_id,
+        'state': 'initialized'
+    }), 201

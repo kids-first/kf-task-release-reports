@@ -32,7 +32,7 @@ def test_bad_input(client):
     resp = client.post('/tasks', json={'action': 'initialize',
                         'release_id': 'RE_00000000',
                         'task_id': 'TA_00000000'})
-    assert resp.status_code == 200
+    assert resp.status_code == 201
 
 
 def test_bad_action(client):
