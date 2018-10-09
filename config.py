@@ -21,3 +21,4 @@ class Config():
                                      'http://localhost:8050')
     DYNAMO_TABLE = os.environ.get('DYNAMO_TABLE',
                                   'release-reports')
+    TIMEOUT = os.environ.get('TIMEOUT', 10)

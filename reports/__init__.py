@@ -43,7 +43,8 @@ api = Blueprint('api', __name__, url_prefix='')
 ALLOWED_ACTIONS = ['get_status', 'initialize', 'start', 'publish', 'cancel']
 ROUTES = {
     'get_status': tasks.get_status,
-    'initialize': tasks.initialize
+    'initialize': tasks.initialize,
+    'start': tasks.start
 }
 
 
