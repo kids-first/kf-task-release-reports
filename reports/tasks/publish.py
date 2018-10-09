@@ -13,7 +13,7 @@ def publish(task_id, release_id):
     """ Set state to 'publishing' and call the publishing task """
     endpoint_url = current_app.config['DYNAMO_ENDPOINT']
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
-    table = db.Table(current_app.config['DYNAMO_TABLE'])
+    table = db.Table(current_app.config['TASK_TABLE'])
 
     # Retrieve only the 'state' for the task to verify it is ready for publish
     task = table.get_item(
@@ -56,7 +56,7 @@ def do_publish(task_id, release_id):
     """
     endpoint_url = current_app.config['DYNAMO_ENDPOINT']
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
-    table = db.Table(current_app.config['DYNAMO_TABLE'])
+    table = db.Table(current_app.config['TASK_TABLE'])
 
     # Retrieve only the 'state' for the task to verify it is ready for publish
     task = table.get_item(

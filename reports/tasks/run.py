@@ -8,7 +8,7 @@ from zappa.async import task
 def run(task_id, release_id):
     endpoint_url = current_app.config['DYNAMO_ENDPOINT']
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
-    table = db.Table(current_app.config['DYNAMO_TABLE'])
+    table = db.Table(current_app.config['TASK_TABLE'])
 
     get_studies(release_id)
 

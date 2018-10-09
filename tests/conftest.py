@@ -12,7 +12,7 @@ def client():
         dynamodb_backend2.create_table('test', schema=schema, indexes=indexes)
         app = create_app()
         app.config['DYNAMO_ENDPOINT'] = None
-        app.config['DYNAMO_TABLE'] = 'test'
+        app.config['TASK_TABLE'] = 'test'
         app_context = app.app_context()
         app_context.push()
         yield app.test_client()

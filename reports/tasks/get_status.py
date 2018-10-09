@@ -7,7 +7,7 @@ def get_status(task_id, release_id):
     """ Return basic task info including its state """
     endpoint_url = current_app.config['DYNAMO_ENDPOINT']
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
-    table = db.Table(current_app.config['DYNAMO_TABLE'])
+    table = db.Table(current_app.config['TASK_TABLE'])
 
     resp = table.get_item(Key={'task_id': task_id})
 
