@@ -10,8 +10,8 @@ def test_not_found(client):
     assert resp['Table']['ItemCount'] == 0
 
     resp = client.post('/tasks', json={'action': 'get_status',
-                        'release_id': 'RE_00000000',
-                        'task_id': 'TA_00000000'})
+                                       'release_id': 'RE_00000000',
+                                       'task_id': 'TA_00000000'})
 
     assert resp.status_code == 404
     assert resp.json['message'] == "task 'TA_00000000' not found"

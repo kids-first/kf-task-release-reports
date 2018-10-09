@@ -24,14 +24,14 @@ def test_bad_input(client):
     assert "'action', 'task_id', and 'release_id'" in resp.json['message']
 
     resp = client.post('/tasks', json={'action': 'initialize',
-                        'task_id': 'TA_00000000'})
+                                       'task_id': 'TA_00000000'})
     assert resp.status_code == 400
     assert 'message' in resp.json
     assert "'action', 'task_id', and 'release_id'" in resp.json['message']
 
     resp = client.post('/tasks', json={'action': 'initialize',
-                        'release_id': 'RE_00000000',
-                        'task_id': 'TA_00000000'})
+                                       'release_id': 'RE_00000000',
+                                       'task_id': 'TA_00000000'})
     assert resp.status_code == 201
 
 
