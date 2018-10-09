@@ -44,7 +44,8 @@ ALLOWED_ACTIONS = ['get_status', 'initialize', 'start', 'publish', 'cancel']
 ROUTES = {
     'get_status': tasks.get_status,
     'initialize': tasks.initialize,
-    'start': tasks.start
+    'start': tasks.start,
+    'publish': tasks.publish
 }
 
 
