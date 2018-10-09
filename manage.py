@@ -12,7 +12,7 @@ def migrate():
     db = boto3.client('dynamodb', endpoint_url=endpoint_url)
 
     try:
-        response = db.describe_table(TableName=app.config['DYNAMO_TABLE'])
+        response = db.describe_table(TableName=app.config['TASK_TABLE'])
     except:
         pass
     else:
@@ -20,7 +20,7 @@ def migrate():
         return
 
     print('Making table')
-    response = db.create_table(TableName=app.config['DYNAMO_TABLE'],
+    response = db.create_table(TableName=app.config['TASK_TABLE'],
                                **task_schema)
 
 
