@@ -57,7 +57,7 @@ def status():
 
 
 @api.route("/tasks", methods=['POST'])
-def tasks():
+def tasks_rpc():
     """
     RPC-like endpoint specified by the coordinator
     """
