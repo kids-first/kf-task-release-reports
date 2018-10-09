@@ -31,6 +31,8 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
+            py.test reports --pep8
+            py.test tests --pep8
             py.test tests
           environment:
             - AWS_DEFAULT_REGION: us-east-1
