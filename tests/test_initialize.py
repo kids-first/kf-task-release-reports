@@ -10,8 +10,8 @@ def test_initialize(client):
     assert resp['Table']['ItemCount'] == 0
 
     resp = client.post('/tasks', json={'action': 'initialize',
-                        'release_id': 'RE_00000000',
-                        'task_id': 'TA_00000000'})
+                                       'release_id': 'RE_00000000',
+                                       'task_id': 'TA_00000000'})
     assert resp.status_code == 201
     assert resp.json['release_id'] == 'RE_00000000'
     assert resp.json['task_id'] == 'TA_00000000'
@@ -21,8 +21,7 @@ def test_initialize(client):
     assert resp['Table']['ItemCount'] == 1
 
     resp = db.get_item(TableName='test',
-        Key={'task_id': {'S': 'TA_00000000'}},
-    )
+                       Key={'task_id': {'S': 'TA_00000000'}})
 
     assert resp['Item']['release_id']['S'] == 'RE_00000000'
     assert float(resp['Item']['created_at']['N']) < datetime.now().timestamp()
@@ -30,8 +29,8 @@ def test_initialize(client):
     assert resp['Item']['state']['S'] == 'initialized'
 
     resp = client.post('/tasks', json={'action': 'get_status',
-                        'release_id': 'RE_00000000',
-                        'task_id': 'TA_00000000'})
+                                       'release_id': 'RE_00000000',
+                                       'task_id': 'TA_00000000'})
 
     assert resp.status_code == 200
     assert resp.json['release_id'] == 'RE_00000000'

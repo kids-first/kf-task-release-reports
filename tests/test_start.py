@@ -11,8 +11,8 @@ def test_not_found(client):
     assert resp['Table']['ItemCount'] == 0
 
     resp = client.post('/tasks', json={'action': 'start',
-                        'release_id': 'RE_00000000',
-                        'task_id': 'TA_00000000'})
+                                       'release_id': 'RE_00000000',
+                                       'task_id': 'TA_00000000'})
 
     assert resp.status_code == 404
     assert resp.json['message'] == "task 'TA_00000000' not found"
@@ -25,12 +25,12 @@ def test_start(client):
 
     with patch('reports.tasks.run.requests') as mock_coord:
         resp = client.post('/tasks', json={'action': 'initialize',
-                            'release_id': 'RE_00000000',
-                            'task_id': 'TA_00000000'})
+                                           'release_id': 'RE_00000000',
+                                           'task_id': 'TA_00000000'})
 
         resp = client.post('/tasks', json={'action': 'start',
-                            'release_id': 'RE_00000000',
-                            'task_id': 'TA_00000000'})
+                                           'release_id': 'RE_00000000',
+                                           'task_id': 'TA_00000000'})
 
         assert resp.status_code == 200
         assert resp.json['state'] == 'running'

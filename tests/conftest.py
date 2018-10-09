@@ -4,12 +4,12 @@ from moto.dynamodb2 import dynamodb_backend2, mock_dynamodb2
 from schema import task_schema
 
 
-@pytest.yield_fixture(scope='session')
+@pytest.yield_fixture(scope='module')
 def client():
     with mock_dynamodb2():
-        dynamodb_backend2.create_table('test',
-            schema=task_schema['KeySchema'],
-            indexes=task_schema['LocalSecondaryIndexes'])
+        schema = task_schema['KeySchema']
+        indexes = task_schema['LocalSecondaryIndexes']
+        dynamodb_backend2.create_table('test', schema=schema, indexes=indexes)
         app = create_app()
         app.config['DYNAMO_ENDPOINT'] = None
         app.config['DYNAMO_TABLE'] = 'test'

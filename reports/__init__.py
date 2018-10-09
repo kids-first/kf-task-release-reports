@@ -57,7 +57,7 @@ def status():
 
 
 @api.route("/tasks", methods=['POST'])
-def tasks():
+def tasks_rpc():
     """
     RPC-like endpoint specified by the coordinator
     """
@@ -70,9 +70,8 @@ def validate_action(body):
     if not body:
         abort(400, 'No body recieved in request')
 
-    if ('action' not in body or
-        'task_id' not in body or
-        'release_id' not in body):
+    if ('action' not in body or 'task_id' not in body or
+            'release_id' not in body):
         abort(400, "Request body must include 'action', 'task_id', " +
               "and 'release_id' fields")
 
@@ -81,7 +80,7 @@ def validate_action(body):
     release_id = body['release_id']
 
     if action not in ALLOWED_ACTIONS:
-        abort(400, f"'{action}' is not a known action, "+
+        abort(400, f"'{action}' is not a known action, " +
               'must be one of {",".join(ALLOWED_ACTIONS)}')
 
     validate_kf_id(task_id, 'TA')
