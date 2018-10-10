@@ -32,4 +32,4 @@ def initialize(task_id, release_id):
         'task_id': task_id,
         'release_id': release_id,
         'state': 'initialized'
-    }), 201
+    }), 200
