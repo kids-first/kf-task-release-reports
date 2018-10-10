@@ -19,6 +19,6 @@ class Config():
                                      'http://localhost:5001')
     DYNAMO_ENDPOINT = os.environ.get('DYNAMO_ENDPOINT',
                                      'http://localhost:8050')
-    DYNAMO_TABLE = os.environ.get('TASK_TABLE',
+    TASK_TABLE = os.environ.get('TASK_TABLE',
                                   'release-reports')
     TIMEOUT = os.environ.get('TIMEOUT', 10)
