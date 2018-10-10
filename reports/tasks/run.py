@@ -1,11 +1,20 @@
 import boto3
 import requests
-from flask import current_app, abort
+import logging
+from flask import current_app, abort, jsonify
 from zappa.async import task
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 @task
 def run(task_id, release_id):
+    """
+    If this is being run as a seperate lambda call, a new app context needs to
+    be made to access 'current_app'
+    """
     if not current_app:
         from manage import app
         with app.app_context():
@@ -21,12 +30,17 @@ def run_it(task_id, release_id):
 
     get_studies(release_id)
 
+    logger.info(f'{task_id} staged successfully')
     # Update the task to staged in db
     task = table.update_item(
         Key={'task_id': task_id},
-        UpdateExpression='SET state = staged',
+        UpdateExpression='SET #st = :new',
+        ExpressionAttributeNames={'#st': 'state'},
+        ExpressionAttributeValues={':new': 'staged'},
         ReturnValues='ALL_NEW'
     )
+
+    return jsonify(task['Attributes']), 200
 
 
 def get_studies(release_id):
@@ -37,6 +51,7 @@ def get_studies(release_id):
     try:
         resp.raise_for_status()
     except requests.exceptions.RequestException:
+        logger.error(f'could not get studies for {release_id}')
         abort(500, 'there was a problem getting studies from the coordinator')
 
     studies = resp.json()['studies']
