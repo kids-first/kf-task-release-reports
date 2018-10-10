@@ -12,7 +12,9 @@ def start(task_id, release_id):
 
     task = table.update_item(
         Key={'task_id': task_id},
-        UpdateExpression='SET state = running',
+        UpdateExpression='SET #st = :new',
+        ExpressionAttributeNames={'#st': 'state'},
+        ExpressionAttributeValues={':new': 'running'},
         ReturnValues='ALL_NEW'
     )
 
