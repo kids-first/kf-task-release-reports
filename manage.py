@@ -2,7 +2,7 @@
 import os
 import boto3
 from reports import create_app
-from schema import task_scheam
+from schema import task_schema
 
 app = create_app()
 
