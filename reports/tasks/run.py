@@ -6,6 +6,15 @@ from zappa.async import task
 
 @task
 def run(task_id, release_id):
+    if not current_app:
+        from manage import app
+        with app.app_context():
+            run_it(task_id, release_id)
+    else:
+        run_it(task_id, release_id)
+
+
+def run_it(task_id, release_id):
     endpoint_url = current_app.config['DYNAMO_ENDPOINT']
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
     table = db.Table(current_app.config['TASK_TABLE'])

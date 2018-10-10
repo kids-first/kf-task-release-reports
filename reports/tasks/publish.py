@@ -54,6 +54,15 @@ def do_publish(task_id, release_id):
     All work is done in the 'running' state, so just update to 'published'
     here and report to coordinator.
     """
+    if not current_app:
+        from manage import app
+        with app.app_context():
+            publish_in_context(task_id, release_id)
+    else:
+        publish_in_context(task_id, release_id)
+
+
+def publish_in_context(task_id, release_id):
     endpoint_url = current_app.config['DYNAMO_ENDPOINT']
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
     table = db.Table(current_app.config['TASK_TABLE'])
