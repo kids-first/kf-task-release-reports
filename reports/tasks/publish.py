@@ -18,7 +18,8 @@ def publish(task_id, release_id):
     # Retrieve only the 'state' for the task to verify it is ready for publish
     task = table.get_item(
         Key={'task_id': task_id},
-        ProjectionExpression='state'
+        ProjectionExpression='#st',
+        ExpressionAttributeNames={'#st': 'state'}
     )
 
     # If there's no 'Item', the task must not exist
@@ -34,7 +35,9 @@ def publish(task_id, release_id):
     # Update the task to published in db
     task = table.update_item(
         Key={'task_id': task_id},
-        UpdateExpression='SET state = publishing',
+        UpdateExpression='SET #st = :new',
+        ExpressionAttributeNames={'#st': 'state'},
+        ExpressionAttributeValues={':new': 'publishing'},
         ReturnValues='ALL_NEW'
     )
 
@@ -70,7 +73,8 @@ def publish_in_context(task_id, release_id):
     # Retrieve only the 'state' for the task to verify it is ready for publish
     task = table.get_item(
         Key={'task_id': task_id},
-        ProjectionExpression='state'
+        ProjectionExpression='#st',
+        ExpressionAttributeNames={'#st': 'state'}
     )
 
     # If there's no 'Item', the task must not exist
@@ -86,7 +90,9 @@ def publish_in_context(task_id, release_id):
     # Update the task to published in db
     task = table.update_item(
         Key={'task_id': task_id},
-        UpdateExpression='SET state = published',
+        UpdateExpression='SET #st = :new',
+        ExpressionAttributeNames={'#st': 'state'},
+        ExpressionAttributeValues={':new': 'published'},
         ReturnValues='ALL_NEW'
     )
 

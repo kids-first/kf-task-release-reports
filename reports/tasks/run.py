@@ -33,7 +33,8 @@ def run_it(task_id, release_id):
     # Check the task's state to make sure it's ok to update to 'staged'
     task = table.get_item(
         Key={'task_id': task_id},
-        ProjectionExpression='state'
+        ProjectionExpression='#st',
+        ExpressionAttributeNames={'#st': 'state'}
     )
 
     # If there's no 'Item', the task must not exist
