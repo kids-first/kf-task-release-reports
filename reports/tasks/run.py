@@ -30,7 +30,22 @@ def run_it(task_id, release_id):
 
     get_studies(release_id)
 
-    logger.info(f'{task_id} staged successfully')
+    # Check the task's state to make sure it's ok to update to 'staged'
+    task = table.get_item(
+        Key={'task_id': task_id},
+        ProjectionExpression='state'
+    )
+
+    # If there's no 'Item', the task must not exist
+    if 'Item' not in task or len(task['Item']) == 0:
+        logger.error(f"tried to stage task that does not exist: {task_id}")
+        return
+
+    # Need to verify that the task has not been canceled or failed since run
+    if task['Item']['state'] != 'running':
+        logger.error(f"tried to stage a task that is not running: {task_id}")
+        return
+
     # Update the task to staged in db
     task = table.update_item(
         Key={'task_id': task_id},
@@ -39,6 +54,7 @@ def run_it(task_id, release_id):
         ExpressionAttributeValues={':new': 'staged'},
         ReturnValues='ALL_NEW'
     )
+    logger.info(f'{task_id} staged successfully')
 
     return jsonify(task['Attributes']), 200
 
