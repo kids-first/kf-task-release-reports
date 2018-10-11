@@ -45,7 +45,8 @@ ROUTES = {
     'get_status': tasks.get_status,
     'initialize': tasks.initialize,
     'start': tasks.start,
-    'publish': tasks.publish
+    'publish': tasks.publish,
+    'cancel': tasks.cancel
 }
 
 
