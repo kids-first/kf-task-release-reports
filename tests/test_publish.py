@@ -15,7 +15,7 @@ def test_not_found(client):
                                        'task_id': 'TA_00000000'})
 
     assert resp.status_code == 404
-    assert resp.json['message'] == "task 'TA_00000000' not found"
+    assert 'a task that does not exist' in resp.json['message']
 
 
 def test_publish(client):
@@ -59,7 +59,7 @@ def test_premature_publish(client):
                                            'task_id': 'TA_00000000'})
 
         assert resp.status_code == 400
-        assert resp.json['message'] == 'may only publish a task that is staged'
+        assert "publishing a task that is 'init" in resp.json['message']
 
         task = table.get_item(Key={'task_id': 'TA_00000000'})['Item']
         assert task['state'] == 'initialized'

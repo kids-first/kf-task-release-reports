@@ -3,6 +3,7 @@ import requests
 import logging
 from flask import current_app, abort, jsonify
 from zappa.async import task
+from reports.tasks.validation import validate_state
 
 
 logger = logging.getLogger()
@@ -30,22 +31,7 @@ def run_it(task_id, release_id):
 
     get_studies(release_id)
 
-    # Check the task's state to make sure it's ok to update to 'staged'
-    task = table.get_item(
-        Key={'task_id': task_id},
-        ProjectionExpression='#st',
-        ExpressionAttributeNames={'#st': 'state'}
-    )
-
-    # If there's no 'Item', the task must not exist
-    if 'Item' not in task or len(task['Item']) == 0:
-        logger.error(f"tried to stage task that does not exist: {task_id}")
-        return
-
-    # Need to verify that the task has not been canceled or failed since run
-    if task['Item']['state'] != 'running':
-        logger.error(f"tried to stage a task that is not running: {task_id}")
-        return
+    validate_state(task_id, 'stage')
 
     # Update the task to staged in db
     task = table.update_item(

@@ -2,6 +2,7 @@ import boto3
 import requests
 import logging
 from flask import current_app, abort, jsonify
+from reports.tasks.validation import validate_state
 
 
 logger = logging.getLogger()
@@ -18,23 +19,7 @@ def cancel(task_id, release_id):
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
     table = db.Table(current_app.config['TASK_TABLE'])
 
-    # Get task and check that it exists and may be canceled
-    task = table.get_item(
-        Key={'task_id': task_id},
-        ProjectionExpression='#st',
-        ExpressionAttributeNames={'#st': 'state'}
-    )
-
-    # If there's no 'Item', the task must not exist
-    if 'Item' not in task or len(task['Item']) == 0:
-        logger.error(f"tried to cancel a task that does not exist: {task_id}")
-        abort(404, f"tried to cancel a task that does not exist: {task_id}")
-
-    # We cannot publish a task which has not completed
-    state = task['Item']['state']
-    if state in ['published', 'canceled', 'failed']:
-        logger.error(f"can not cancel task that is '{state}': {task_id}")
-        abort(400, f"can not cancel task that is '{state}': {task_id}")
+    validate_state(task_id, 'cancel')
 
     logger.info(f'{task_id} was told to cancel by the coordinator')
     # Update the task to staged in db

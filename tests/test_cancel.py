@@ -80,7 +80,7 @@ def test_cancel_from_canceled(client):
                                        'task_id': 'TA_00000000'})
 
     assert resp.status_code == 400
-    assert "not cancel task that is 'canceled'" in resp.json['message']
+    assert "not cancel a task that is 'canceled'" in resp.json['message']
 
     task = table.get_item(Key={'task_id': 'TA_00000000'})['Item']
     assert task['state'] == 'canceled'
@@ -98,7 +98,7 @@ def test_cancel_from_published(client):
                                        'task_id': 'TA_00000000'})
 
     assert resp.status_code == 400
-    assert "not cancel task that is 'published'" in resp.json['message']
+    assert "not cancel a task that is 'published'" in resp.json['message']
 
     task = table.get_item(Key={'task_id': 'TA_00000000'})['Item']
     assert task['state'] == 'published'
