@@ -3,6 +3,7 @@ import requests
 import logging
 from flask import current_app, abort, jsonify
 from zappa.async import task
+from reports.tasks.validation import validate_state
 
 
 logger = logging.getLogger()
@@ -15,26 +16,14 @@ def publish(task_id, release_id):
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
     table = db.Table(current_app.config['TASK_TABLE'])
 
-    # Retrieve only the 'state' for the task to verify it is ready for publish
-    task = table.get_item(
-        Key={'task_id': task_id},
-        ProjectionExpression='state'
-    )
-
-    # If there's no 'Item', the task must not exist
-    if 'Item' not in task or len(task['Item']) == 0:
-        logger.error(f"tried to publish task that does not exist: {task_id}")
-        return abort(404, f"task '{task_id}' not found")
-
-    # We cannot publish a task which has not completed
-    if task['Item']['state'] != 'staged':
-        logger.error(f"tried to publish task that is not staged: {task_id}")
-        abort(400, 'may only publish a task that is staged')
+    validate_state(task_id, 'begin publishing')
 
     # Update the task to published in db
     task = table.update_item(
         Key={'task_id': task_id},
-        UpdateExpression='SET state = publishing',
+        UpdateExpression='SET #st = :new',
+        ExpressionAttributeNames={'#st': 'state'},
+        ExpressionAttributeValues={':new': 'publishing'},
         ReturnValues='ALL_NEW'
     )
 
@@ -67,26 +56,14 @@ def publish_in_context(task_id, release_id):
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
     table = db.Table(current_app.config['TASK_TABLE'])
 
-    # Retrieve only the 'state' for the task to verify it is ready for publish
-    task = table.get_item(
-        Key={'task_id': task_id},
-        ProjectionExpression='state'
-    )
-
-    # If there's no 'Item', the task must not exist
-    if 'Item' not in task or len(task['Item']) == 0:
-        logger.error(f"tried to publish task that does not exist: {task_id}")
-        return
-
-    # We cannot publish a task which has not completed
-    if task['Item']['state'] != 'publishing':
-        logger.error("Can not publish task that is not 'publishing'")
-        return
+    validate_state(task_id, 'publish')
 
     # Update the task to published in db
     task = table.update_item(
         Key={'task_id': task_id},
-        UpdateExpression='SET state = published',
+        UpdateExpression='SET #st = :new',
+        ExpressionAttributeNames={'#st': 'state'},
+        ExpressionAttributeValues={':new': 'published'},
         ReturnValues='ALL_NEW'
     )
 

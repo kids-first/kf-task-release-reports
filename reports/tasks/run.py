@@ -3,6 +3,7 @@ import requests
 import logging
 from flask import current_app, abort, jsonify
 from zappa.async import task
+from reports.tasks.validation import validate_state
 
 
 logger = logging.getLogger()
@@ -30,7 +31,8 @@ def run_it(task_id, release_id):
 
     get_studies(release_id)
 
-    logger.info(f'{task_id} staged successfully')
+    validate_state(task_id, 'stage')
+
     # Update the task to staged in db
     task = table.update_item(
         Key={'task_id': task_id},
@@ -39,6 +41,7 @@ def run_it(task_id, release_id):
         ExpressionAttributeValues={':new': 'staged'},
         ReturnValues='ALL_NEW'
     )
+    logger.info(f'{task_id} staged successfully')
 
     return jsonify(task['Attributes']), 200
 
