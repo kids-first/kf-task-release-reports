@@ -1,5 +1,5 @@
 import boto3
-from datetime import datetime
+import datetime
 from unittest.mock import patch
 from moto.dynamodb2 import dynamodb_backend2, mock_dynamodb2
 
@@ -23,25 +23,18 @@ def test_publish(client):
     db = boto3.resource('dynamodb')
     table = db.Table('test')
 
-    with patch('reports.tasks.run.requests') as mock_coord:
-        resp = client.post('/tasks', json={'action': 'initialize',
-                                           'release_id': 'RE_00000000',
-                                           'task_id': 'TA_00000000'})
+    _make_task('staged')
 
-        resp = client.post('/tasks', json={'action': 'start',
-                                           'release_id': 'RE_00000000',
-                                           'task_id': 'TA_00000000'})
+    resp = client.post('/tasks', json={'action': 'publish',
+                                       'release_id': 'RE_00000000',
+                                       'task_id': 'TA_00000000'})
 
-        resp = client.post('/tasks', json={'action': 'publish',
-                                           'release_id': 'RE_00000000',
-                                           'task_id': 'TA_00000000'})
+    # API should respond with publish, but task should be published in db
+    assert resp.status_code == 200
+    assert resp.json['state'] == 'publishing'
 
-        # API should respond with publish, but task should be published in db
-        assert resp.status_code == 200
-        assert resp.json['state'] == 'publishing'
-
-        task = table.get_item(Key={'task_id': 'TA_00000000'})['Item']
-        assert task['state'] == 'published'
+    task = table.get_item(Key={'task_id': 'TA_00000000'})['Item']
+    assert task['state'] == 'published'
 
 
 def test_premature_publish(client):
@@ -49,17 +42,29 @@ def test_premature_publish(client):
     db = boto3.resource('dynamodb')
     table = db.Table('test')
 
-    with patch('reports.tasks.run.requests') as mock_coord:
-        resp = client.post('/tasks', json={'action': 'initialize',
-                                           'release_id': 'RE_00000000',
-                                           'task_id': 'TA_00000000'})
+    _make_task()
 
-        resp = client.post('/tasks', json={'action': 'publish',
-                                           'release_id': 'RE_00000000',
-                                           'task_id': 'TA_00000000'})
+    resp = client.post('/tasks', json={'action': 'publish',
+                                       'release_id': 'RE_00000000',
+                                       'task_id': 'TA_00000000'})
 
-        assert resp.status_code == 400
-        assert "publishing a task that is 'init" in resp.json['message']
+    assert resp.status_code == 400
+    assert "publishing a task that is 'init" in resp.json['message']
 
-        task = table.get_item(Key={'task_id': 'TA_00000000'})['Item']
-        assert task['state'] == 'initialized'
+    task = table.get_item(Key={'task_id': 'TA_00000000'})['Item']
+    assert task['state'] == 'initialized'
+
+
+def _make_task(state='initialized'):
+    db = boto3.resource('dynamodb')
+    table = db.Table('test')
+
+    response = table.put_item(
+        Item={
+            'task_id': 'TA_00000000',
+            'release_id': 'RE_00000000',
+            'created_at': str(datetime.datetime.now().timestamp()),
+            'state': state,
+        }
+    )
+    return response
