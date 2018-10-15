@@ -23,17 +23,18 @@ def test_start(client):
     db = boto3.resource('dynamodb')
     table = db.Table('test')
 
-    with patch('reports.tasks.run.requests') as mock_coord:
-        resp = client.post('/tasks', json={'action': 'initialize',
-                                           'release_id': 'RE_00000000',
-                                           'task_id': 'TA_00000000'})
+    with patch('requests.get') as mock_coord:
+        with patch('reports.reporting.release_summary.run') as mock_summary:
+            resp = client.post('/tasks', json={'action': 'initialize',
+                                               'release_id': 'RE_00000000',
+                                               'task_id': 'TA_00000000'})
 
-        resp = client.post('/tasks', json={'action': 'start',
-                                           'release_id': 'RE_00000000',
-                                           'task_id': 'TA_00000000'})
+            resp = client.post('/tasks', json={'action': 'start',
+                                               'release_id': 'RE_00000000',
+                                               'task_id': 'TA_00000000'})
 
-        assert resp.status_code == 200
-        assert resp.json['state'] == 'running'
+            assert resp.status_code == 200
+            assert resp.json['state'] == 'running'
 
-        task = table.get_item(Key={'task_id': 'TA_00000000'})['Item']
-        assert task['state'] == 'staged'
+            task = table.get_item(Key={'task_id': 'TA_00000000'})['Item']
+            assert task['state'] == 'staged'

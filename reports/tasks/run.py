@@ -4,6 +4,7 @@ import logging
 from flask import current_app, abort, jsonify
 from zappa.async import task
 from reports.tasks.validation import validate_state
+from reports.reporting import release_summary
 
 
 logger = logging.getLogger()
@@ -29,7 +30,7 @@ def run_it(task_id, release_id):
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
     table = db.Table(current_app.config['TASK_TABLE'])
 
-    get_studies(release_id)
+    release_summary.run(task_id, release_id)
 
     validate_state(task_id, 'stage')
 
@@ -44,17 +45,3 @@ def run_it(task_id, release_id):
     logger.info(f'{task_id} staged successfully')
 
     return jsonify(task['Attributes']), 200
-
-
-def get_studies(release_id):
-    coord_api = current_app.config['COORDINATOR_URL']
-    resp = requests.get(f'{coord_api}/releases/{release_id}',
-                        timeout=current_app.config['TIMEOUT'])
-
-    try:
-        resp.raise_for_status()
-    except requests.exceptions.RequestException:
-        logger.error(f'could not get studies for {release_id}')
-        abort(500, 'there was a problem getting studies from the coordinator')
-
-    studies = resp.json()['studies']
