@@ -17,3 +17,22 @@ release being made into a tidy report.
 
 The Release Report Service follows the [Task Service spec](https://kids-first.github.io/kf-api-release-coordinator/docs/task.html)
 outlined by the Release Coordinator.
+
+### Tables
+
+The Release Reports Service stores statistics about each report in various tables in dynamo. Below is the schema for each:
+
+#### Task
+
+The task table stores logistics information about each task.
+
+| release_id | task_id | created_at | state |
+|------------|---------|------------|-------|
+
+
+#### Release Summary
+
+The release summary stores information about aggregate counts for each entity
+
+| release_id | task_id | version | studies | participants | ... |
+|------------|---------|---------|---------|--------------|-----|

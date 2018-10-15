@@ -4,10 +4,22 @@ services:
     kf-task-release-reports:
         build: .
         image: kf-task-release-reports:latest
-        command: /bin/ash -c "flask run"
+        command: /bin/bash -c "flask migrate; flask run -h 0.0.0.0 -p 80"
         environment:
-            - DYNAMO_ENDPOINT=http://dynamo:8050
+            - DYNAMO_ENDPOINT=http://dynamo:8000
+            - FLASK_APP=manage.py
+            - DATASERVICE_URL=http://dataservice
+            - COORDINATOR_URL=http://coordinator
+            - AWS_DEFAULT_REGION=us-east-1
+            - AWS_ACCESS_KEY_ID=blah
+            - AWS_SECRET_ACCESS_KEY=blah
+        ports:
+            - "5020:80"
     dynamo:
         image: amazon/dynamodb-local:latest
         ports:
             - "8050:8000"
+networks:
+    default:
+        external:
+            name: kf-data-stack_default
