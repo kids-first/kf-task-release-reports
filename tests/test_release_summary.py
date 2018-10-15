@@ -90,7 +90,6 @@ def test_run(client):
     """ Test that study counts are aggregated across studies """
     db = boto3.resource('dynamodb')
     table = db.Table('release-summary')
-    db = boto3.client('dynamodb')
     with patch('requests.get') as mock_request:
         mock_request.side_effect = mocked_apis
         r = release_summary.run('TA_00000000', 'RE_00000000')
@@ -98,3 +97,26 @@ def test_run(client):
         assert r['release_id'] == 'RE_00000000'
         assert r['task_id'] == 'TA_00000000'
     assert table.item_count == 1
+
+
+def test_get_report(client):
+    """ Test that api returns release summary """
+    db = boto3.resource('dynamodb')
+    table = db.Table('release-summary')
+    with patch('requests.get') as mock_request:
+        mock_request.side_effect = mocked_apis
+        r = release_summary.run('TA_00000000', 'RE_00000000')
+    assert table.item_count == 1
+
+    resp = client.get('/reports/RE_00000000')
+    assert all(k in resp.json for k in ENTITIES)
+    assert all(resp.json[k] == 1 for k in ENTITIES)
+    assert resp.json['release_id'] == 'RE_00000000'
+    assert resp.json['task_id'] == 'TA_00000000'
+
+
+def test_report_not_found(client):
+    resp = client.get('/reports/RE_XXXXXXXX')
+
+    assert resp.status_code == 404
+    assert 'could not find a report for release RE_' in resp.json['message']

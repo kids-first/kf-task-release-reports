@@ -2,6 +2,7 @@ import decimal
 from flask import Flask, Blueprint, current_app, jsonify, request, abort, json
 from werkzeug.exceptions import HTTPException
 from . import tasks
+from .reporting import reports_api
 
 
 class DynamoJSON(json.JSONEncoder):
@@ -35,6 +36,7 @@ def create_app():
         app.register_error_handler(ex, json_error)
 
     app.register_blueprint(api)
+    app.register_blueprint(reports_api)
 
     return app
 
