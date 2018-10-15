@@ -1,9 +1,5 @@
 import boto3
 import datetime
-import requests
-from unittest.mock import patch
-from moto.dynamodb2 import dynamodb_backend2, mock_dynamodb2
-import reports.tasks
 
 
 def test_cancel_from_init(client):
@@ -42,16 +38,12 @@ def test_cancel_from_staged(client):
     assert task['state'] == 'canceled'
 
 
-def test_cancel_from_canceled(client):
+def test_cancel_from_running(client):
     """ Test that task may not be canceled twice """
     db = boto3.resource('dynamodb')
     table = db.Table('test')
 
     _make_task('running')
-
-    resp = client.post('/tasks', json={'action': 'cancel',
-                                       'release_id': 'RE_00000000',
-                                       'task_id': 'TA_00000000'})
 
     resp = client.post('/tasks', json={'action': 'cancel',
                                        'release_id': 'RE_00000000',

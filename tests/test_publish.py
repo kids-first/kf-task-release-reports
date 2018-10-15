@@ -1,7 +1,6 @@
 import boto3
 import datetime
 from unittest.mock import patch
-from moto.dynamodb2 import dynamodb_backend2, mock_dynamodb2
 
 
 def test_not_found(client):
