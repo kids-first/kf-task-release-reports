@@ -1,7 +1,6 @@
 import boto3
-import requests
 import logging
-from flask import current_app, abort, jsonify
+from flask import current_app, jsonify
 from reports.tasks.validation import validate_state
 
 

@@ -1,6 +1,5 @@
 import boto3
 from datetime import datetime
-from moto.dynamodb2 import dynamodb_backend2, mock_dynamodb2
 
 
 def test_initialize(client):
@@ -36,4 +35,4 @@ def test_initialize(client):
     assert resp.json['release_id'] == 'RE_00000000'
     assert resp.json['task_id'] == 'TA_00000000'
     assert resp.json['state'] == 'initialized'
-    assert type(resp.json['created_at']) is float
+    assert isinstance(resp.json['created_at'], float)

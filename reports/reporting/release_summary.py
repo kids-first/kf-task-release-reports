@@ -75,7 +75,10 @@ def collect_counts(studies):
     # Counts by study
     study_counts = {study: Counter(count_study(study)) for study in studies}
     # Total counts
-    total_counts = dict(sum(study_counts.values(), Counter()))
+    total_counts = Counter()
+    for study, counts in study_counts.items():
+        total_counts.update(counts)
+    total_counts = dict(total_counts)
     total_counts['studies'] = len(study_counts.keys())
 
     return total_counts

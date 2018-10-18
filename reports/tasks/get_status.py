@@ -1,5 +1,4 @@
 import boto3
-import decimal
 from flask import current_app, jsonify, abort
 
 
