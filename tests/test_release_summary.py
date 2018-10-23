@@ -126,7 +126,8 @@ def test_get_report(client):
     assert all(resp.json[k] == 1 for k in ENTITIES)
     assert resp.json['release_id'] == 'RE_00000000'
     assert resp .json['task_id'] == 'TA_00000000'
-    assert len(resp.json['study_summaries']) == 1
+    assert 'SD_00000000' in resp.json['study_summaries']
+    st = resp.json['study_summaries']['SD_00000000']
 
 
 def test_report_not_found(client):

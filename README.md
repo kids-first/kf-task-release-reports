@@ -34,13 +34,13 @@ The task table stores logistics information about each task.
 
 The release summary stores information about aggregate counts for each entity
 
-| release_id | task_id | version | studies | participants | ... |
-|------------|---------|---------|---------|--------------|-----|
+| release_id | task_id | created_at | version | studies | participants | ... |
+|------------|---------|------------|---------|---------|--------------|-----|
 
 
 #### Study Summary
 
 The study summary stores information about aggregate counts for each entity for a given study in a given release.
 
-| study_id | release_id| release_id | task_id | version | participants | ... |
-|----------|-----------|------------|---------|---------|--------------|-----|
+| study_id | release_id| release_id | task_id | created_at | version | participants | ... |
+|----------|-----------|------------|---------|------------|---------|--------------|-----|

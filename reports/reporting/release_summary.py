@@ -39,7 +39,8 @@ def run(task_id, release_id):
     base_fields = {
         'task_id': task_id,
         'release_id': release_id,
-        'version': version
+        'version': version,
+        'created_at': datetime.datetime.now().isoformat()
     }
 
     for study, counts in study_counts.items():
