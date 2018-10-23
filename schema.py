@@ -45,3 +45,20 @@ release_summary_schema = dict(AttributeDefinitions=[
     StreamSpecification={ 'StreamEnabled': False },
     SSESpecification={ 'Enabled': False }
 )
+
+# Stores overview stats of a study in a release
+study_summary_schema = dict(AttributeDefinitions=[
+        { 'AttributeName': 'release_id', 'AttributeType': 'S' },
+        { 'AttributeName': 'study_id', 'AttributeType': 'S' },
+    ],
+    KeySchema=[
+        { 'AttributeName': 'release_id', 'KeyType': 'HASH' },
+        { 'AttributeName': 'study_id', 'KeyType': 'RANGE' },
+    ],
+    ProvisionedThroughput={
+        'ReadCapacityUnits': 1,
+        'WriteCapacityUnits': 1
+    },
+    StreamSpecification={ 'StreamEnabled': False },
+    SSESpecification={ 'Enabled': False }
+)
