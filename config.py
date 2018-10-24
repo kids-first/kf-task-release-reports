@@ -23,4 +23,6 @@ class Config():
                                 'release-reports')
     RELEASE_SUMMARY_TABLE = os.environ.get('RELEASE_SUMMARY_TABLE',
                                            'release-summary')
+    STUDY_SUMMARY_TABLE = os.environ.get('STUDY_SUMMARY_TABLE',
+                                         'study-summary')
     TIMEOUT = os.environ.get('TIMEOUT', 10)

@@ -27,22 +27,39 @@ ENTITIES = [
 def run(task_id, release_id):
     endpoint_url = current_app.config['DYNAMO_ENDPOINT']
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
-    table = db.Table(current_app.config['RELEASE_SUMMARY_TABLE'])
+    release_table = db.Table(current_app.config['RELEASE_SUMMARY_TABLE'])
+    study_table = db.Table(current_app.config['STUDY_SUMMARY_TABLE'])
 
     studies, version = get_studies(release_id)
 
-    counts = collect_counts(studies)
+    # Get counts by study
+    study_counts = {study: Counter(count_study(study)) for study in studies}
 
+    # Save each study summary to dynamo
     base_fields = {
         'task_id': task_id,
         'release_id': release_id,
-        'version': version
+        'version': version,
+        'created_at': datetime.datetime.now().isoformat()
     }
+
+    for study, counts in study_counts.items():
+        counts = dict(counts)
+        counts.update(base_fields)
+        counts.update({'study_id': study})
+        response = study_table.put_item(
+            Item=counts,
+            ReturnValues='NONE',
+            ReturnConsumedCapacity='NONE',
+        )
+
+    # Aggregate all entities
+    counts = collect_counts(study_counts)
     counts.update(base_fields)
     logger.info(counts)
 
-    # Store the count summary in dynamo
-    response = table.put_item(
+    # Store the release count summary in dynamo
+    response = release_table.put_item(
         Item=counts,
         ReturnValues='NONE',
         ReturnConsumedCapacity='NONE',
@@ -70,10 +87,8 @@ def get_studies(release_id):
     return studies, version
 
 
-def collect_counts(studies):
+def collect_counts(study_counts):
     """ Aggregates counts for specified entities in each study """
-    # Counts by study
-    study_counts = {study: Counter(count_study(study)) for study in studies}
     # Total counts
     total_counts = Counter()
     for study, counts in study_counts.items():
@@ -103,7 +118,8 @@ def count_entity(study_id, entity):
     Query the dataservice for the total visible entities of a certain type
     """
     dataservice_api = current_app.config['DATASERVICE_URL']
-    url = f'{dataservice_api}/{entity}?{study_id}&visible=true&limit=1'
+    url = (f'{dataservice_api}/{entity}?' +
+           f'study_id={study_id}&visible=true&limit=1')
 
     try:
         resp = requests.get(url, timeout=current_app.config['TIMEOUT'])
