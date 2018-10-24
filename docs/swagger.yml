@@ -1,0 +1,138 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "Kids First Release Report Task Service"
+  description: |
+    The Relase Report Task Service runs reporting for each release of the Release Coordinator. It exposes the results in its API for users to fetch data statistics about the release from.
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "kidsfirstdrc.org"
+basePath: "/"
+schemes:
+- "http"
+paths:
+  /status:
+    get:
+      summary: "Service status"
+      description: "Returns the name and version of the service"
+      operationId: "getStatus"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Task service status page"
+          schema:
+            $ref: "#/definitions/Status"
+  /reports/{releaseId}:
+    parameters:
+      - name: "releaseId"
+        in: "path"
+        description: "The Release ID of the for desired report"
+        required: true
+        type: "string"
+        format: "str"
+    get:
+      summary: "Get a report for a release"
+      description: "Returns aggregate entity counts contained in the release and breakdowns by study. Note that the number of entity types may be variable across reports and even within different study summaries in the same report."
+      operationId: "getReport"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Report found"
+          schema:
+            $ref: "#/definitions/Report"
+        404:
+          description: "Release not found"
+          schema:
+            $ref: "#/definitions/NotFound"
+definitions:
+  Status:
+    properties:
+      version:
+        description: "The version of the API"
+        example: "1.0.0"
+        type: "string"
+      name:
+        description: "The task service name"
+        example: "kf-task-release-reports"
+        type: "string"
+  Report:
+    properties:
+      release_id:
+        type: "string"
+        format: "string"
+        example: "RE_00000000"
+      version:
+        type: "string"
+        format: "string"
+        example: "0.0.1"
+      created_at:
+        type: "string"
+        format: "date"
+        example: "2018-03-19T20:12:24.702813+00:00"
+      studies:
+        type: "integer"
+        format: "integer"
+        example: 1
+      participants:
+        type: "integer"
+        format: "integer"
+        example: 100
+      biospecimens:
+        type: "integer"
+        format: "integer"
+        example: 30
+      genomic-files:
+        type: "integer"
+        format: "integer"
+        example: 1000
+      study_summaries:
+        type: "array"
+        items:
+          $ref: "#/definitions/StudySummary"
+  StudySummary:
+    properties:
+      study_id:
+        type: "string"
+        format: "string"
+        example: "SD_XXXXXXXX"
+      task_id:
+        type: "string"
+        format: "string"
+        example: "TA_00000000"
+      release_id:
+        type: "string"
+        format: "string"
+        example: "RE_00000000"
+      version:
+        type: "string"
+        format: "string"
+        example: "0.0.1"
+      studies:
+        type: "integer"
+        format: "integer"
+        example: 1
+      participants:
+        type: "integer"
+        format: "integer"
+        example: 100
+      biospecimens:
+        type: "integer"
+        format: "integer"
+        example: 30
+      genomic-files:
+        type: "integer"
+        format: "integer"
+        example: 1000
+  NotFound:
+    properties:
+      message:
+        type: "string"
+        format: "string"
+        example: "Could not find a report for release RE_00000000"

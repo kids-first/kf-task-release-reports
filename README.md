@@ -3,6 +3,7 @@
 </p>
 <p align="center">
   <a herf="https://github.com/kids-first/kf-task-release-reports/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kids-first/kf-task-release-reports.svg?style=for-the-badge"></a>
+  <a href="http://kids-first.github.io/kf-task-release-reports/"><img src="https://img.shields.io/readthedocs/pip.svg?style=for-the-badge"></a>
   <a href="https://circleci.com/gh/kids-first/kf-task-release-reports"><img src="https://img.shields.io/circleci/project/github/kids-first/kf-task-release-reports/master.svg?style=for-the-badge"></a>
   <a href="https://app.codacy.com/app/kids-first/kf-task-release-reports/dashboard"><img src="https://img.shields.io/codacy/grade/0de29994bc124aa98971d985aaadf5ea/master.svg?style=for-the-badge"></a>
 </p>
