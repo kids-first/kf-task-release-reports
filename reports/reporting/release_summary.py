@@ -118,7 +118,8 @@ def count_entity(study_id, entity):
     Query the dataservice for the total visible entities of a certain type
     """
     dataservice_api = current_app.config['DATASERVICE_URL']
-    url = f'{dataservice_api}/{entity}?{study_id}&visible=true&limit=1'
+    url = (f'{dataservice_api}/{entity}?' +
+           f'study_id={study_id}&visible=true&limit=1')
 
     try:
         resp = requests.get(url, timeout=current_app.config['TIMEOUT'])
