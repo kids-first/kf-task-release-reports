@@ -56,7 +56,7 @@ ROUTES = {
 def status():
     return jsonify({
         'name': 'kf-task-release-reports',
-        'version': '0.1.0'
+        'version': '1.0.0'
     })
 
 
