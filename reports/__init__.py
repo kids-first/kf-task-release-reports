@@ -38,6 +38,12 @@ def create_app():
     app.register_blueprint(api)
     app.register_blueprint(reports_api)
 
+    # CORS
+    @app.after_request
+    def after_request(response):
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
     return app
 
 

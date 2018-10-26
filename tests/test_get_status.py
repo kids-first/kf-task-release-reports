@@ -15,3 +15,5 @@ def test_not_found(client):
 
     assert resp.status_code == 404
     assert resp.json['message'] == "task 'TA_00000000' not found"
+    assert 'Access-Control-Allow-Origin' in resp.headers
+    assert resp.headers['Access-Control-Allow-Origin'] == '*'
