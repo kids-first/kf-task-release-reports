@@ -1,3 +1,17 @@
+# Kf Task Release Reports Release 1.0.1
+
+## Features
+
+### Summary
+
+Feature Emojis: ✨x1 📝x1
+Feature Labels: [feature](https://api.github.com/repos/kids-first/kf-task-release-reports/labels/feature) x1 [documentation](https://api.github.com/repos/kids-first/kf-task-release-reports/labels/documentation) x1
+
+### New features and changes
+
+- (#17) ✨ Add allow origin to response headers - @dankolbman
+- (#15) 📝 Add simple swagger spec - @dankolbman
+
 # Kf Task Release Reports 1.0.0
 
 ## Features
