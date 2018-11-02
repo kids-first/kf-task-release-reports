@@ -1,0 +1,19 @@
+{
+  "iat": 1541087104,
+  "exp": 1541173504,
+  "sub": "1139757c-20c6-427b-b971-a6d3a4457032",
+  "iss": "ego",
+  "aud": [
+    "release-coordinator"
+  ],
+  "jti": "f3a08497-fef7-4bf6-aaa7-9cd6c514ec34",
+  "context": {
+    "application": {
+      "name": "release-coordinator",
+      "clientId": "abc",
+      "redirectUri": "http://coordinator",
+      "status": "Approved",
+      "groups": []
+    }
+  }
+}

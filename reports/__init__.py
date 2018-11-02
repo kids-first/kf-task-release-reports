@@ -3,6 +3,7 @@ from flask import Flask, Blueprint, current_app, jsonify, request, abort, json
 from werkzeug.exceptions import HTTPException
 from . import tasks
 from .reporting import reports_api
+from .authentication import authenticate_coordinator
 
 
 class DynamoJSON(json.JSONEncoder):
@@ -71,6 +72,8 @@ def tasks_rpc():
     """
     RPC-like endpoint specified by the coordinator
     """
+    # First check that this is a legitimate request from the coordinator
+    authenticate_coordinator()
     action, task_id, release_id = validate_action(request.get_json(force=True))
     # Call into action
     return ROUTES[action](task_id, release_id)
