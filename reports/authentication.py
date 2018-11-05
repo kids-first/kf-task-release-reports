@@ -5,14 +5,13 @@ from urllib.parse import urlparse
 from flask import current_app, request, abort
 
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
-
 def authenticate_coordinator():
     """ Verify a jwt by performing token checks and validating with ego """
+    logger = current_app.logger
+
     auth = request.headers.get('Authorization')
     if auth is None or not auth.lower().startswith('bearer'):
+        logger.info(f'No authentication provided')
         abort(403, 'Must include an Authorization header with Bearer token')
 
     try:
@@ -22,6 +21,7 @@ def authenticate_coordinator():
         url = decoded['context']['application']['redirectUri']
         status = decoded['context']['application']['status']
     except (KeyError, jwt.exceptions.DecodeError) as err:
+        logger.info(f'Invalid JWT provided')
         abort(403, 'Invalid JWT provided')
 
     allowed = True
@@ -44,8 +44,8 @@ def authenticate_coordinator():
         abort(403, 'JWT does not contain proper permissions')
 
     # Verify with ego now that prechecks have passed
-    resp = requests.post(f"{current_app.config['EGO_URL']}/oauth/token/verify",
-                         headers={'token': token})
+    resp = requests.get(f"{current_app.config['EGO_URL']}/oauth/token/verify",
+                        headers={'token': token})
 
     if resp.status_code != 200 or resp.json() is not True:
         logger.error(f'Ego failed to verify jwt for app: {name}')
