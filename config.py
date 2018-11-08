@@ -17,6 +17,8 @@ class Config():
                                      'http://localhost:5000')
     COORDINATOR_URL = os.environ.get('COORDINATOR_URL',
                                      'http://localhost:5001')
+    EGO_URL = os.environ.get('EGO_URL',
+                             'http://localhost:5002')
     DYNAMO_ENDPOINT = os.environ.get('DYNAMO_ENDPOINT',
                                      'http://localhost:8050')
     TASK_TABLE = os.environ.get('TASK_TABLE',

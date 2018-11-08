@@ -10,6 +10,7 @@ services:
             - FLASK_APP=manage.py
             - DATASERVICE_URL=http://dataservice
             - COORDINATOR_URL=http://coordinator
+            - EGO_URL=http://ego
             - AWS_DEFAULT_REGION=us-east-1
             - AWS_ACCESS_KEY_ID=blah
             - AWS_SECRET_ACCESS_KEY=blah

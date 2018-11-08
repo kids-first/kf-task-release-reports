@@ -1,5 +1,8 @@
 import pytest
+import json
+import jwt
 from reports import create_app
+from unittest.mock import patch, MagicMock
 from moto.dynamodb2 import dynamodb_backend2, mock_dynamodb2
 from schema import task_schema, release_summary_schema, study_summary_schema
 
@@ -25,6 +28,26 @@ def client():
         app.config['RELEASE_SUMMARY_TABLE'] = 'release-summary'
         app.config['DATASERVICE_URL'] = 'http://dataservice'
         app.config['COORDINATOR_URL'] = 'http://coordinator'
+        app.config['EGO_URL'] = 'http://ego'
         app_context = app.app_context()
         app_context.push()
-        yield app.test_client()
+        client = app.test_client()
+
+        with open('tests/ego_token.json') as f:
+            token = jwt.encode(json.load(f), 'abc', 'HS256').decode('utf-8')
+        client.environ_base['HTTP_AUTHORIZATION'] = f"Bearer {token}"
+
+        # Allow all requests to be verified by ego
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = True
+        mock_resp.status_code = 200
+
+        with patch('reports.authentication.requests.get') as mock_get:
+            mock_get.return_value = mock_resp
+            yield client
+
+
+@pytest.yield_fixture(scope='module')
+def no_auth_client(client):
+    client.environ_base['HTTP_AUTHORIZATION'] = ''
+    yield client
