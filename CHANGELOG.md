@@ -1,3 +1,18 @@
+# Kids First Task Release Reports Release 1.1.0
+
+## Features
+
+Only respond to requests at the `/tasks` endpoint if there is a valid coordinator jwt attached to the request.
+
+### Summary
+
+Feature Emojis: 🔒x1
+Feature Labels: [feature](https://api.github.com/repos/kids-first/kf-task-release-reports/labels/feature) x1
+
+### New features and changes
+
+- (#19) 🔒 Add ego auth - @dankolbman
+
 # Kf Task Release Reports Release 1.0.1
 
 ## Features
