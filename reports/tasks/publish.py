@@ -3,6 +3,7 @@ import logging
 from flask import current_app, abort, jsonify
 from zappa.async import task
 from reports.tasks.validation import validate_state
+from reports.reporting import release_summary
 
 
 logger = logging.getLogger()
@@ -70,5 +71,8 @@ def publish_in_context(task_id, release_id):
     if 'Attributes' not in task or len(task['Attributes']) == 0:
         logger.error(f"problem updating task '{task_id}'")
         return abort(500, f"problem updating '{task_id}'")
+
+    # Finally, update the summary rows with new state and version
+    release_summary.publish(release_id)
 
     return jsonify(task['Attributes']), 200
