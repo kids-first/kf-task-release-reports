@@ -51,3 +51,41 @@ def client():
 def no_auth_client(client):
     client.environ_base['HTTP_AUTHORIZATION'] = ''
     yield client
+
+
+@pytest.yield_fixture(scope='function')
+def mocked_apis():
+    def get(url, *args, **kwargs):
+        class MockResponse:
+            def __init__(self, json_data, status_code):
+                self.json_data = json_data
+                self.status_code = status_code
+
+            def json(self):
+                return self.json_data
+
+            def raise_for_status(self):
+                if self.status_code >= 400:
+                    raise requests.exceptions.HTTPError(self.status_code)
+
+        # Coordinator response
+        if 'coordinator' in url and url.split('/')[-2] == 'releases':
+            return MockResponse({
+                'studies': kwargs.get('studies', ['SD_00000000']),
+                'version': kwargs.get('version', '0.0.0'),
+                'state': kwargs.get('state', 'staged')
+            }, 200)
+
+        # Dataservice response
+        if 'dataservice' in url:
+            return MockResponse({'total': 1}, 200)
+
+        # Ego response
+        if 'ego' in url:
+            mock_resp = MagicMock()
+            mock_resp.json.return_value = True
+            mock_resp.status_code = 200
+            return mock_resp
+
+        return MockResponse(None, 404)
+    return get

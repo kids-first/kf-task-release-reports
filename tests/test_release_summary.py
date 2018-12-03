@@ -21,35 +21,7 @@ ENTITIES = [
 ]
 
 
-def mocked_apis(url, *args, **kwargs):
-    class MockResponse:
-        def __init__(self, json_data, status_code):
-            self.json_data = json_data
-            self.status_code = status_code
-
-        def json(self):
-            return self.json_data
-
-        def raise_for_status(self):
-            if self.status_code >= 400:
-                raise requests.exceptions.HTTPError(self.status_code)
-
-    # Coordinator response
-    if 'coordinator' in url and url.split('/')[-2] == 'releases':
-        return MockResponse({
-            'studies': kwargs.get('studies', ['SD_00000000']),
-            'version': kwargs.get('version', '0.0.0'),
-            'state': kwargs.get('state', 'staged')
-        }, 200)
-
-    # Dataservice response
-    if 'dataservice' in url:
-        return MockResponse({'total': 1}, 200)
-
-    return MockResponse(None, 404)
-
-
-def test_get_studies(client):
+def test_get_studies(client, mocked_apis):
     """ Test that a task is set to canceled after being initialized """
     db = boto3.resource('dynamodb')
     db = boto3.client('dynamodb')
@@ -67,14 +39,14 @@ def test_get_studies(client):
 
 
 @pytest.mark.parametrize("entity", ENTITIES)
-def test_entity_counts(client, entity):
+def test_entity_counts(client, entity, mocked_apis):
     with patch('requests.get') as mock_request:
         mock_request.side_effect = mocked_apis
         r = release_summary.count_entity('SD_00000000', entity)
         assert r == 1
 
 
-def test_count_study(client):
+def test_count_study(client, mocked_apis):
     """ Test that entities are counted within a study """
     with patch('requests.get') as mock_request:
         mock_request.side_effect = mocked_apis
@@ -82,7 +54,7 @@ def test_count_study(client):
         assert r == {k: 1 for k in ENTITIES}
 
 
-def test_count_studies(client):
+def test_count_studies(client, mocked_apis):
     """ Test that study counts are aggregated across studies """
     with patch('requests.get') as mock_request:
         mock_request.side_effect = mocked_apis
@@ -93,7 +65,7 @@ def test_count_studies(client):
         assert r == {k: 2 for k in ENTITIES + ['studies']}
 
 
-def test_run(client):
+def test_run(client, mocked_apis):
     """ Test that study counts are aggregated across studies """
     db = boto3.resource('dynamodb')
     release_table = db.Table('release-summary')
@@ -116,7 +88,7 @@ def test_run(client):
     assert all(st[k] == 1 for k in ENTITIES)
 
 
-def test_get_report(client):
+def test_get_report(client, mocked_apis):
     """ Test that api returns release summary """
     db = boto3.resource('dynamodb')
     table = db.Table('release-summary')
@@ -134,14 +106,14 @@ def test_get_report(client):
     st = resp.json['study_summaries']['SD_00000000']
 
 
-def test_report_not_found(client):
+def test_report_not_found(client, mocked_apis):
     resp = client.get('/reports/RE_XXXXXXXX')
 
     assert resp.status_code == 404
     assert 'could not find a report for release RE_' in resp.json['message']
 
 
-def test_publish(client):
+def test_publish(client, mocked_apis):
     """ Test that release and study summary rows are updated upon publish """
     db = boto3.resource('dynamodb')
     release_table = db.Table('release-summary')
@@ -182,7 +154,7 @@ def test_publish(client):
         _test_summaries('published', '0.1.0')
 
 
-def test_publish_does_not_exist(client):
+def test_publish_does_not_exist(client, mocked_apis):
     """
     Test behavior if a release is published and one of the summary rows
     do not exist
