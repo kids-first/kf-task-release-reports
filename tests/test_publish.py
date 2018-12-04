@@ -17,16 +17,18 @@ def test_not_found(client):
     assert 'a task that does not exist' in resp.json['message']
 
 
-def test_publish(client):
+def test_publish(client, mocked_apis):
     """ Test that a task's state is updated to 'published' """
     db = boto3.resource('dynamodb')
     table = db.Table('test')
 
     _make_task('staged')
 
-    resp = client.post('/tasks', json={'action': 'publish',
-                                       'release_id': 'RE_00000000',
-                                       'task_id': 'TA_00000000'})
+    with patch('requests.get') as mock_request:
+        mock_request.side_effect = mocked_apis
+        resp = client.post('/tasks', json={'action': 'publish',
+                                           'release_id': 'RE_00000000',
+                                           'task_id': 'TA_00000000'})
 
     # API should respond with publish, but task should be published in db
     assert resp.status_code == 200

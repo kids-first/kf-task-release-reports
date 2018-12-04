@@ -30,7 +30,7 @@ def run(task_id, release_id):
     release_table = db.Table(current_app.config['RELEASE_SUMMARY_TABLE'])
     study_table = db.Table(current_app.config['STUDY_SUMMARY_TABLE'])
 
-    studies, version = get_studies(release_id)
+    studies, version, state = get_studies(release_id)
 
     # Get counts by study
     study_counts = {study: Counter(count_study(study)) for study in studies}
@@ -40,6 +40,7 @@ def run(task_id, release_id):
         'task_id': task_id,
         'release_id': release_id,
         'version': version,
+        'state': state,
         'created_at': datetime.datetime.now().isoformat()
     }
 
@@ -67,10 +68,54 @@ def run(task_id, release_id):
     return counts
 
 
+def publish(release_id):
+    """
+    Update the study and release summary rows with the new version number and
+    set state to published
+
+    :param release_id: The kf_id of the release to update
+    """
+    endpoint_url = current_app.config['DYNAMO_ENDPOINT']
+    db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
+    release_table = db.Table(current_app.config['RELEASE_SUMMARY_TABLE'])
+    study_table = db.Table(current_app.config['STUDY_SUMMARY_TABLE'])
+
+    studies, version, state = get_studies(release_id)
+
+    # Update study summary rows
+    for study_id in studies:
+        st = study_table.update_item(
+            Key={'release_id': release_id, 'study_id': study_id},
+            UpdateExpression='SET #st= :new, #vr= :next',
+            ExpressionAttributeNames={
+                '#st': 'state',
+                '#vr': 'version'
+            },
+            ExpressionAttributeValues={
+                ':new': 'published',
+                ':next': version
+            },
+            ReturnValues='ALL_NEW'
+        )
+
+    # Update the release summary row
+    re = release_table.update_item(
+        Key={'release_id': release_id},
+        UpdateExpression='SET #st = :new, #ver = :next',
+        ExpressionAttributeNames={'#st': 'state', '#ver': 'version'},
+        ExpressionAttributeValues={':new': 'published', ':next': version},
+        ReturnValues='ALL_NEW'
+    )
+
+
 def get_studies(release_id):
     """
-    Retieve the study ids for the release and the release's version number
-    from the coordinator
+    Retieve the study ids, version number, and state of a given release
+    from the coordinator.
+
+    :param release_id: The kf_id of the release to retrieve info for
+
+    :returns: (List of study ids, version number, state)
     """
     coord_api = current_app.config['COORDINATOR_URL']
     resp = requests.get(f'{coord_api}/releases/{release_id}?limit=100',
@@ -84,7 +129,8 @@ def get_studies(release_id):
 
     studies = resp.json()['studies']
     version = resp.json()['version']
-    return studies, version
+    state = resp.json()['state']
+    return studies, version, state
 
 
 def collect_counts(study_counts):

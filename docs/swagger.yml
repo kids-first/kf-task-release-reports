@@ -72,6 +72,10 @@ definitions:
         type: "string"
         format: "string"
         example: "0.0.1"
+      state:
+        type: "string"
+        format: "string"
+        example: "staged"
       created_at:
         type: "string"
         format: "date"
@@ -114,6 +118,10 @@ definitions:
         type: "string"
         format: "string"
         example: "0.0.1"
+      state:
+        type: "string"
+        format: "string"
+        example: "staged"
       studies:
         type: "integer"
         format: "integer"
