@@ -18,7 +18,6 @@ def get_report(kf_id):
     study_table = db.Table(current_app.config['STUDY_SUMMARY_TABLE'])
 
     resp = release_table.get_item(Key={'release_id': kf_id})
-
     if 'Item' not in resp or len(resp['Item']) == 0:
         abort(404, f'could not find a report for release {kf_id}')
 
@@ -31,5 +30,20 @@ def get_report(kf_id):
     studies = {sd['study_id']: sd for sd in studies['Items']}
 
     resp['Item']['study_summaries'] = studies
+
+    return jsonify(resp['Item']), 200
+
+
+@reports_api.route('/<re_id>/<sd_id>', methods=['GET'])
+def get_report_per_study(re_id, sd_id):
+    endpoint_url = current_app.config['DYNAMO_ENDPOINT']
+    db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
+    study_table = db.Table(current_app.config['STUDY_SUMMARY_TABLE'])
+
+    # get the study summaries for the release
+    resp = study_table.get_item(Key={'release_id': re_id, 'study_id': sd_id})
+    if 'Item' not in resp or len(resp['Item']) == 0:
+        abort(404, f'could not find study report'
+              f' for release {re_id} and study id {sd_id}')
 
     return jsonify(resp['Item']), 200

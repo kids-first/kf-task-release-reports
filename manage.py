@@ -6,6 +6,7 @@ from schema import task_schema, release_summary_schema, study_summary_schema
 
 app = create_app()
 
+
 @app.cli.command()
 def migrate():
     endpoint_url = app.config['DYNAMO_ENDPOINT']
@@ -25,7 +26,8 @@ def migrate():
 
     print('Making release summary table')
     try:
-        response = db.describe_table(TableName=app.config['RELEASE_SUMMARY_TABLE'])
+        response = db.describe_table(
+            TableName=app.config['RELEASE_SUMMARY_TABLE'])
     except:
         pass
     else:
@@ -36,7 +38,8 @@ def migrate():
 
     print('Making study summary table')
     try:
-        response = db.describe_table(TableName=app.config['STUDY_SUMMARY_TABLE'])
+        response = db.describe_table(
+            TableName=app.config['STUDY_SUMMARY_TABLE'])
     except:
         pass
     else:
