@@ -51,6 +51,37 @@ paths:
           description: "Release not found"
           schema:
             $ref: "#/definitions/NotFound"
+    /reports/{releaseId}/{studyId}:
+      parameters:
+        - name: "releaseId"
+          in: "path"
+          description: "The Release ID of the for desired report"
+          required: true
+          type: "string"
+          format: "str"
+        - name: "studyId"
+          in: "path"
+          description: "The Study ID of the for desired report"
+          required: true
+          type: "string"
+          format: "str"
+      get:
+        summary: "Get a report for a release and study"
+        description: "Returns aggregate entity counts contained in the release and study."
+        operationId: "getReport"
+        consumes:
+        - "application/json"
+        produces:
+        - "application/json"
+        responses:
+          200:
+            description: "Report found"
+            schema:
+              $ref: "#/definitions/StudySummary"
+          404:
+            description: "Release or study not found"
+            schema:
+              $ref: "#/definitions/RSNotFound"
 definitions:
   Status:
     properties:
@@ -144,3 +175,9 @@ definitions:
         type: "string"
         format: "string"
         example: "Could not find a report for release RE_00000000"
+  RSNotFound:
+    properties:
+      message:
+        type: "string"
+        format: "string"
+        example: "Could not find a report for release RE_00000000 and study SD_00000000"

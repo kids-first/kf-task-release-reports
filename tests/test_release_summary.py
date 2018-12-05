@@ -186,3 +186,29 @@ def test_publish_does_not_exist(client, mocked_apis):
         # There should still be no summary rows
         assert release_table.item_count == 0
         assert study_table.item_count == 0
+
+
+def test_get_report_per_study(client, mocked_apis):
+    """ Test that api returns release summary for specific study"""
+    db = boto3.resource('dynamodb')
+    table = db.Table('release-summary')
+    with patch('requests.get') as mock_request:
+        mock_request.side_effect = mocked_apis
+        s = release_summary.run('TA_00000000', 'RE_00000000')
+    assert table.item_count == 1
+
+    resp = client.get('/reports/RE_00000000/SD_00000000')
+    assert all(k in resp.json for k in ENTITIES)
+    assert all(resp.json[k] == 1 for k in ENTITIES)
+    assert resp.json['release_id'] == 'RE_00000000'
+    assert resp .json['task_id'] == 'TA_00000000'
+    assert 'SD_00000000' in resp.json['study_id']
+
+
+def test_get_report_per_study_not_found(client):
+    resp = client.get('/reports/RE_XXXXXXXX/SD_XXXXXXXX')
+
+    assert resp.status_code == 404
+    assert 'could not find study'
+    ' report for release RE_' in resp.json['message']
+    assert 'and study id SD_' in resp.json['message']
