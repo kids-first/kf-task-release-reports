@@ -212,3 +212,30 @@ def test_get_report_per_study_not_found(client):
     assert 'could not find study'
     ' report for release RE_' in resp.json['message']
     assert 'and study id SD_' in resp.json['message']
+
+
+def test_get_report_per_study_filter_by_state(client, mocked_apis):
+    """ Test that api returns release summary for specific study"""
+    db = boto3.resource('dynamodb')
+    table = db.Table('release-summary')
+    with patch('requests.get') as mock_request:
+        mock_request.side_effect = mocked_apis
+        s = release_summary.run('TA_00000000', 'RE_00000000')
+    assert table.item_count == 1
+
+    resp = client.get('/reports/SD_00000000/state=staged')
+    r1 = resp.json['releases'][0]['RE_00000000']
+    assert all(k in r1 for k in ENTITIES)
+    assert all(r1
+               [k] == 1 for k in ENTITIES)
+    assert r1['release_id'] == 'RE_00000000'
+    assert r1['task_id'] == 'TA_00000000'
+    assert 'SD_00000000' in r1['study_id']
+
+
+def test_get_report_per_study__filter_by_state_not_found(client):
+    resp = client.get('/reports/SD_XXXXXXXX/state=published')
+
+    assert resp.status_code == 404
+    assert 'could not find study'
+    ' report for study SD_' in resp.json['message']
