@@ -1,3 +1,18 @@
+# Kids First Task Release Reports Release 1.2.0
+
+## Features
+
+### Summary
+
+Feature Emojis: ✨x2
+Feature Labels: [feature](https://api.github.com/repos/kids-first/kf-task-release-reports/labels/feature) x2
+
+### New features and changes
+
+- (#28) ✨ Create endpoint to return a study report by release and study - @parimalak
+- (#27) ✨ Update state and version of summary rows upon publish - @dankolbman
+
+
 # Kids First Task Release Reports Release 1.1.0
 
 ## Features
