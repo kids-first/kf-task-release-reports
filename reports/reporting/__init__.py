@@ -53,8 +53,11 @@ def get_filter_by_state_study(sd_id, state):
     db = boto3.resource('dynamodb')
     study_table = db.Table(current_app.config['STUDY_SUMMARY_TABLE'])
     # get the study summaries for the release and state
-    resp = study_table.scan(FilterExpression=Attr('study_id').eq(
-        sd_id) & Attr('state').eq(state))
+    resp = study_table.query(IndexName='CreatedAtIndex',
+                             Select='ALL_PROJECTED_ATTRIBUTES',
+                             KeyConditionExpression=Key('study_id').eq(sd_id),
+                             FilterExpression=Attr('state').eq(state),
+                             ScanIndexForward=False)
     if 'Items' not in resp or len(resp['Items']) == 0:
         abort(404, f'could not find study report'
               f' for study id {sd_id}')
