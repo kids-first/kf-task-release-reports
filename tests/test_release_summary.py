@@ -97,7 +97,7 @@ def test_get_report(client, mocked_apis):
         r = release_summary.run('TA_00000000', 'RE_00000000')
     assert table.item_count == 1
 
-    resp = client.get('/reports/RE_00000000')
+    resp = client.get('/reports/releases/RE_00000000')
     assert all(k in resp.json for k in ENTITIES)
     assert all(resp.json[k] == 1 for k in ENTITIES)
     assert resp.json['release_id'] == 'RE_00000000'
@@ -107,7 +107,7 @@ def test_get_report(client, mocked_apis):
 
 
 def test_report_not_found(client, mocked_apis):
-    resp = client.get('/reports/RE_XXXXXXXX')
+    resp = client.get('/reports/releases/RE_XXXXXXXX')
 
     assert resp.status_code == 404
     assert 'could not find a report for release RE_' in resp.json['message']
@@ -223,7 +223,7 @@ def test_get_report_per_study_filter_by_state(client, mocked_apis):
         s = release_summary.run('TA_00000000', 'RE_00000000')
     assert table.item_count == 1
 
-    resp = client.get('/reports/SD_00000000/state=staged')
+    resp = client.get('/reports/studies/SD_00000000?state=staged')
     r1 = resp.json['releases'][0]['RE_00000000']
     assert all(k in r1 for k in ENTITIES)
     assert all(r1
@@ -233,8 +233,8 @@ def test_get_report_per_study_filter_by_state(client, mocked_apis):
     assert 'SD_00000000' in r1['study_id']
 
 
-def test_get_report_per_study__filter_by_state_not_found(client):
-    resp = client.get('/reports/SD_XXXXXXXX/state=published')
+def test_get_report_per_study_filter_by_state_not_found(client):
+    resp = client.get('/reports/studies/SD_XXXXXXXX?state=published')
 
     assert resp.status_code == 404
     assert 'could not find study'
