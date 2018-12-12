@@ -26,6 +26,8 @@ def get_report(kf_id):
     studies = study_table.query(
         KeyConditionExpression=Key('release_id').eq(kf_id)
     )
+    for item in studies['Items']:
+        item.update({"was_updated": True})
 
     # Key all studies by study kf_id
     studies = {sd['study_id']: sd for sd in studies['Items']}
