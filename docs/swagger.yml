@@ -26,7 +26,7 @@ paths:
           description: "Task service status page"
           schema:
             $ref: "#/definitions/Status"
-  /reports/{releaseId}:
+  /reports/releases/{releaseId}:
     parameters:
       - name: "releaseId"
         in: "path"
@@ -51,37 +51,69 @@ paths:
           description: "Release not found"
           schema:
             $ref: "#/definitions/NotFound"
-    /reports/{releaseId}/{studyId}:
-      parameters:
-        - name: "releaseId"
-          in: "path"
-          description: "The Release ID of the for desired report"
-          required: true
-          type: "string"
-          format: "str"
-        - name: "studyId"
-          in: "path"
-          description: "The Study ID of the for desired report"
-          required: true
-          type: "string"
-          format: "str"
-      get:
-        summary: "Get a report for a release and study"
-        description: "Returns aggregate entity counts contained in the release and study."
-        operationId: "getReport"
-        consumes:
-        - "application/json"
-        produces:
-        - "application/json"
-        responses:
-          200:
-            description: "Report found"
-            schema:
-              $ref: "#/definitions/StudySummary"
-          404:
-            description: "Release or study not found"
-            schema:
-              $ref: "#/definitions/RSNotFound"
+  /reports/{releaseId}/{studyId}:
+    parameters:
+      - name: "releaseId"
+        in: "path"
+        description: "The Release ID of the for desired report"
+        required: true
+        type: "string"
+        format: "str"
+      - name: "studyId"
+        in: "path"
+        description: "The Study ID of the for desired report"
+        required: true
+        type: "string"
+        format: "str"
+    get:
+      summary: "Get a report for a release and study"
+      description: "Returns aggregate entity counts contained in the release and study."
+      operationId: "getReport"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Report found"
+          schema:
+            $ref: "#/definitions/StudySummary"
+        404:
+          description: "Release or study not found"
+          schema:
+            $ref: "#/definitions/RSNotFound"
+  /reports/studies/{studyId}:
+    parameters:
+      - name: "releaseId"
+        in: "path"
+        description: "The Release ID of the for desired report"
+        required: true
+        type: "string"
+        format: "str"
+      - name: "state"
+        in: "path"
+        description: "The state of the release"
+        required: true
+        type: "string"
+        format: "str"
+    get:
+      summary: "Get a report for a study and specified state."
+      description: "Returns aggregate entity counts contained in the release and study."
+      operationId: "getReport"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Report found"
+          schema:
+            $ref: "#/definitions/StudySummary"
+        404:
+          description: "Release or study not found"
+          schema:
+            $ref: "#/definitions/RSNotFound"
+
 definitions:
   Status:
     properties:

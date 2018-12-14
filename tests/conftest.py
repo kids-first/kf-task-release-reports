@@ -19,8 +19,9 @@ def client():
                                        schema=schema, indexes=[])
 
         schema = study_summary_schema['KeySchema']
+        indexes = study_summary_schema['GlobalSecondaryIndexes']
         dynamodb_backend2.create_table('study-summary',
-                                       schema=schema, indexes=[])
+                                       schema=schema, indexes=indexes)
 
         app = create_app()
         app.config['DYNAMO_ENDPOINT'] = None
