@@ -15,6 +15,7 @@ reports_api = Blueprint('reports', __name__, url_prefix='/reports')
 def get_report(kf_id):
     endpoint_url = current_app.config['DYNAMO_ENDPOINT']
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
+
     release_table = db.Table(current_app.config['RELEASE_SUMMARY_TABLE'])
     study_table = db.Table(current_app.config['STUDY_SUMMARY_TABLE'])
 
@@ -22,15 +23,28 @@ def get_report(kf_id):
     if 'Item' not in resp or len(resp['Item']) == 0:
         abort(404, f'could not find a report for release {kf_id}')
 
+    # Get all studies that are publicly released and are
+    # not released in this release
+    past_released_studies = study_table.scan(
+        FilterExpression=Attr('state').eq('published')
+    )
+    for item in past_released_studies['Items']:
+        item.update({"was_updated": False})
+
+    # Key all publicly released studies by study kf_id
+    studies = {sd['study_id']: sd for sd in
+               past_released_studies['Items']}
+
     # Get all study summaries in the release
-    studies = study_table.query(
+    current_studies = study_table.query(
         KeyConditionExpression=Key('release_id').eq(kf_id)
     )
-    for item in studies['Items']:
+    for item in current_studies['Items']:
         item.update({"was_updated": True})
 
-    # Key all studies by study kf_id
-    studies = {sd['study_id']: sd for sd in studies['Items']}
+    # Key all studies released in this release by
+    # study kf_id and past releases
+    studies.update({sd['study_id']: sd for sd in current_studies['Items']})
 
     resp['Item']['study_summaries'] = studies
 
@@ -56,6 +70,7 @@ def get_report_per_study(re_id, sd_id):
 def get_filter_by_state_study(sd_id):
     endpoint_url = current_app.config['DYNAMO_ENDPOINT']
     db = boto3.resource('dynamodb', endpoint_url=endpoint_url)
+
     state = request.args.get('state')
     study_table = db.Table(current_app.config['STUDY_SUMMARY_TABLE'])
     # get the study summaries for the release and state
