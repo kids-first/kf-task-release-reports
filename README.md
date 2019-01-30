@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/release_reports_logo.png" alt="Release Reports">
+  <img src="docs/release_reports.svg" alt="Release Reports" width="660px">
 </p>
 <p align="center">
   <a herf="https://github.com/kids-first/kf-task-release-reports/blob/master/LICENSE"><img src="https://img.shields.io/github/license/kids-first/kf-task-release-reports.svg?style=for-the-badge"></a>
