@@ -1,3 +1,18 @@
+# Kids First Task Release Reports Release 1.3.0
+
+## Features
+
+### Summary
+
+Feature Emojis: 🔧x1 🖼x1 ✨x1
+Feature Labels: [bug](https://api.github.com/repos/kids-first/kf-task-release-reports/labels/bug) x1 [documentation](https://api.github.com/repos/kids-first/kf-task-release-reports/labels/documentation) x1
+
+### New features and changes
+
+- (#34) 🔧 Add CORS header to responses - @dankolbman
+- (#33) 🖼 Update logo - @dankolbman
+- (#30) ✨ Endpoint to return list of a study's releases - @parimalak
+
 # Kids First Task Release Reports Release 1.2.0
 
 ## Features
