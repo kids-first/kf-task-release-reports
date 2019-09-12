@@ -16,7 +16,7 @@ release being made into a tidy report.
 
 ## Design
 
-The Release Report Service follows the [Task Service spec](https://kids-first.github.io/kf-api-release-coordinator/docs/task.html)
+The Release Report Service follows the [Task Service spec](https://kids-first.github.io/kf-api-release-coordinator/task_service/api.html)
 outlined by the Release Coordinator.
 
 ### Tables
