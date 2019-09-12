@@ -5,12 +5,17 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 
-def test_no_header(no_auth_client):
+def test_no_header(client):
     """ Test behavior when no authorization header is given """
 
-    resp = no_auth_client.post('/tasks', json={'action': 'initialize',
-                                               'release_id': 'RE_00000000',
-                                               'task_id': 'TA_00000000'})
+    resp = client.post(
+        "/tasks",
+        json={
+            "action": "initialize",
+            "release_id": "RE_00000000",
+            "task_id": "TA_00000000",
+        },
+    )
 
     assert resp.status_code == 403
-    assert 'Must include an Authorization' in resp.json['message']
+    assert "Must include an Authorization" in resp.json["message"]
