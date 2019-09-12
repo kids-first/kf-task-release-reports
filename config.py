@@ -28,3 +28,12 @@ class Config():
     STUDY_SUMMARY_TABLE = os.environ.get('STUDY_SUMMARY_TABLE',
                                          'study-summary')
     TIMEOUT = os.environ.get('TIMEOUT', 10)
+
+    # Auth0 settings
+    AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN", "kids-first.auth0.com")
+    AUTH0_JWKS = os.environ.get(
+        "AUTH0_JWKS", "https://kids-first.auth0.com/.well-known/jwks.json"
+    )
+    AUTH0_AUD = os.environ.get(
+        "AUTH0_AUD", "https://kf-release-coordinator.kidsfirstdrc.org"
+    )
