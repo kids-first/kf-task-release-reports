@@ -1,3 +1,4 @@
+import datetime
 import pytest
 import json
 import jwt
@@ -30,13 +31,16 @@ def client():
         app.config['DATASERVICE_URL'] = 'http://dataservice'
         app.config['COORDINATOR_URL'] = 'http://coordinator'
         app.config['EGO_URL'] = 'http://ego'
+        app.config[
+            "AUTH0_AUD"
+        ] = "https://kf-release-coordinator.kidsfirstdrc.org"
         app_context = app.app_context()
         app_context.push()
         client = app.test_client()
 
-        with open('tests/ego_token.json') as f:
-            token = jwt.encode(json.load(f), 'abc', 'HS256').decode('utf-8')
-        client.environ_base['HTTP_AUTHORIZATION'] = f"Bearer {token}"
+        with open("tests/ego_token.json") as f:
+            token = jwt.encode(json.load(f), "abc", "HS256").decode("utf-8")
+        client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
 
         # Allow all requests to be verified by ego
         mock_resp = MagicMock()
@@ -48,9 +52,47 @@ def client():
             yield client
 
 
-@pytest.yield_fixture(scope='module')
-def no_auth_client(client):
-    client.environ_base['HTTP_AUTHORIZATION'] = ''
+@pytest.fixture(scope="module", autouse=True)
+def auth0_key_mock():
+    """
+    Mocks out the response from the /.well-known/jwks.json endpoint on auth0
+    """
+    middleware = "reports.authentication"
+    with patch(f"{middleware}._get_new_key") as get_key:
+        with open("tests/keys/jwks.json", "r") as f:
+            get_key.return_value = json.load(f)["keys"][0]
+            yield get_key
+
+
+@pytest.fixture()
+def service_token():
+    """
+    Generate a service token that will be used in machine-to-machine auth
+    """
+    with open("tests/keys/private_key.pem", "rb") as f:
+        key = f.read()
+
+    def make_token(scope="role:admin"):
+        now = datetime.datetime.now()
+        tomorrow = now + datetime.timedelta(days=1)
+        token = {
+            "iss": "auth0.com",
+            "sub": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@clients",
+            "aud": "https://kf-release-coordinator.kidsfirstdrc.org",
+            "iat": now.timestamp(),
+            "exp": tomorrow.timestamp(),
+            "azp": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "scope": scope,
+            "gty": "client-credentials",
+        }
+        return jwt.encode(token, key, algorithm="RS256").decode("utf8")
+
+    return make_token
+
+
+@pytest.yield_fixture()
+def no_auth_client(client, service_token):
+    client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {service_token()}"
     yield client
 
 
