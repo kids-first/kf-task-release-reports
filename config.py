@@ -17,8 +17,6 @@ class Config():
                                      'http://localhost:5000')
     COORDINATOR_URL = os.environ.get('COORDINATOR_URL',
                                      'http://localhost:5001')
-    EGO_URL = os.environ.get('EGO_URL',
-                             'http://localhost:5002')
     DYNAMO_ENDPOINT = os.environ.get('DYNAMO_ENDPOINT',
                                      'http://localhost:8050')
     TASK_TABLE = os.environ.get('TASK_TABLE',
@@ -28,3 +26,12 @@ class Config():
     STUDY_SUMMARY_TABLE = os.environ.get('STUDY_SUMMARY_TABLE',
                                          'study-summary')
     TIMEOUT = os.environ.get('TIMEOUT', 10)
+
+    # Auth0 settings
+    AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN", "kids-first.auth0.com")
+    AUTH0_JWKS = os.environ.get(
+        "AUTH0_JWKS", "https://kids-first.auth0.com/.well-known/jwks.json"
+    )
+    AUTH0_AUD = os.environ.get(
+        "AUTH0_AUD", "https://kf-release-coordinator.kidsfirstdrc.org"
+    )

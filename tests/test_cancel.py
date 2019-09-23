@@ -2,16 +2,21 @@ import boto3
 import datetime
 
 
-def test_cancel_from_init(client):
+def test_cancel_from_init(service_client):
     """ Test that a task is set to canceled after being initialized """
     db = boto3.resource('dynamodb')
     table = db.Table('test')
 
     _make_task('initialized')
 
-    resp = client.post('/tasks', json={'action': 'cancel',
-                                       'release_id': 'RE_00000000',
-                                       'task_id': 'TA_00000000'})
+    resp = service_client.post(
+        "/tasks",
+        json={
+            "action": "cancel",
+            "release_id": "RE_00000000",
+            "task_id": "TA_00000000",
+        },
+    )
 
     assert resp.status_code == 200
     assert resp.json['state'] == 'canceled'
@@ -38,16 +43,21 @@ def test_cancel_from_staged(client):
     assert task['state'] == 'canceled'
 
 
-def test_cancel_from_running(client):
+def test_cancel_from_running(service_client):
     """ Test that task may not be canceled twice """
     db = boto3.resource('dynamodb')
     table = db.Table('test')
 
     _make_task('running')
 
-    resp = client.post('/tasks', json={'action': 'cancel',
-                                       'release_id': 'RE_00000000',
-                                       'task_id': 'TA_00000000'})
+    resp = service_client.post(
+        "/tasks",
+        json={
+            "action": "cancel",
+            "release_id": "RE_00000000",
+            "task_id": "TA_00000000",
+        },
+    )
 
     assert resp.status_code == 200
     assert resp.json['state'] == 'canceled'

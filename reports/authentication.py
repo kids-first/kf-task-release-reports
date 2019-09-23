@@ -1,3 +1,4 @@
+import json
 import jwt
 import logging
 import requests
@@ -5,48 +6,54 @@ from urllib.parse import urlparse
 from flask import current_app, request, abort
 
 
+def _get_new_key():
+    resp = requests.get(
+        current_app.config["AUTH0_JWKS"], timeout=current_app.config["TIMEOUT"]
+    )
+    return resp.json()["keys"][0]
+
+
 def authenticate_coordinator():
     """ Verify a jwt by performing token checks and validating with ego """
     logger = current_app.logger
 
-    auth = request.headers.get('Authorization')
-    if auth is None or not auth.lower().startswith('bearer'):
-        logger.info(f'No authentication provided')
-        abort(403, 'Must include an Authorization header with Bearer token')
+    auth = request.headers.get("Authorization")
+    if auth is None or not auth.startswith("Bearer "):
+        logger.info(f"No authentication provided")
+        abort(403, "Must include an Authorization header with Bearer token")
+    token = auth.replace("Bearer ", "")
 
+    # Get the public key from Auth0
+    public_key = None
     try:
-        token = auth.split('Bearer ')[-1]
-        decoded = jwt.decode(token, verify=False)
-        name = decoded['context']['application']['name']
-        url = decoded['context']['application']['redirectUri']
-        status = decoded['context']['application']['status']
-    except (KeyError, jwt.exceptions.DecodeError) as err:
-        logger.info(f'Invalid JWT provided')
-        abort(403, 'Invalid JWT provided')
+        key = _get_new_key()
+        public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(key))
+    except requests.exceptions.RequestException as err:
+        logger.error(f"Problem fetching key from Auth0: {err}")
+        abort(500, "Problem authenticating")
+    except KeyError:
+        logger.error(f"Unexpected response from Auth0")
+        abort(500, "Problem authenticating")
 
-    allowed = True
+    # Verify the token
+    try:
+        token = jwt.decode(
+            token,
+            public_key,
+            algorithms="RS256",
+            audience=current_app.config["AUTH0_AUD"],
+        )
+    except jwt.exceptions.DecodeError as err:
+        logger.error(f"Problem authenticating request from Auth0: {err}")
+        abort(403, "Invalid JWT provided")
+    except jwt.exceptions.InvalidTokenError as err:
+        logger.error(f"Token provided is not valid for Auth0: {err}")
+        abort(403, "Invalid JWT provided")
 
-    # Check if the jwt redirect matches the url we have on hand
-    domain = urlparse(url).netloc
-    if domain != urlparse(current_app.config['COORDINATOR_URL']).netloc:
-        logger.error(f'jwt provided with wrong redirect url: {url}')
-        allowed = False
+    if not token.get("gty") == "client-credentials":
+        logger.error(f"Non-service token tried to access reports")
+        abort(403, "Only service tokens are allowed")
 
-    if name != 'release-coordinator':
-        logger.error(f'jwt provided with wrong app name: {name}')
-        allowed = False
-
-    if status != 'Approved':
-        logger.error(f'jwt provided for unapproved app: {name}, {status}')
-        allowed = False
-
-    if not allowed:
-        abort(403, 'JWT does not contain proper permissions')
-
-    # Verify with ego now that prechecks have passed
-    resp = requests.get(f"{current_app.config['EGO_URL']}/oauth/token/verify",
-                        headers={'token': token})
-
-    if resp.status_code != 200 or resp.json() is not True:
-        logger.error(f'Ego failed to verify jwt for app: {name}')
-        abort(403, 'JWT does not contain proper permissions')
+    logger.info(
+        f"Verified request from the Release Coordinator for {token['sub']}"
+    )

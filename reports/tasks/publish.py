@@ -1,7 +1,7 @@
 import boto3
 import logging
 from flask import current_app, abort, jsonify
-from zappa.async import task
+from zappa.asynchronous import task
 from reports.tasks.validation import validate_state
 from reports.reporting import release_summary
 

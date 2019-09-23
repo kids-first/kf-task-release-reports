@@ -2,15 +2,20 @@ import boto3
 from unittest.mock import patch
 
 
-def test_not_found(client):
+def test_not_found(service_client):
     """ Test that an unkown task returns 404 """
     db = boto3.client('dynamodb')
     resp = db.describe_table(TableName='test')
     assert resp['Table']['ItemCount'] == 0
 
-    resp = client.post('/tasks', json={'action': 'start',
-                                       'release_id': 'RE_00000000',
-                                       'task_id': 'TA_00000000'})
+    resp = service_client.post(
+        "/tasks",
+        json={
+            "action": "start",
+            "release_id": "RE_00000000",
+            "task_id": "TA_00000000",
+        },
+    )
 
     assert resp.status_code == 404
     assert resp.json['message'] == "task 'TA_00000000' not found"

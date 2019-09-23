@@ -3,8 +3,8 @@ def test_bad_verb(client):
     assert resp.status_code == 405
 
 
-def test_no_body(client):
-    resp = client.post('/tasks')
+def test_no_body(service_client):
+    resp = service_client.post('/tasks')
     assert resp.status_code == 400
     assert 'message' in resp.json
     assert 'could not understand' in resp.json['message']
