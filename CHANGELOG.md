@@ -1,3 +1,20 @@
+# Kids First Task Release Reports Release 1.4.0
+
+## Features
+
+Add Auth0 authentication for incoming requests from the coordinator.
+
+### Summary
+
+Feature Emojis: 👷x1 🔒x1 📝x1
+Feature Labels: [devops](https://api.github.com/repos/kids-first/kf-task-release-reports/labels/devops) x1 [feature](https://api.github.com/repos/kids-first/kf-task-release-reports/labels/feature) x1 [documentation](https://api.github.com/repos/kids-first/kf-task-release-reports/labels/documentation) x1
+
+### New features and changes
+
+- (#40) 👷 Terraform 0.12 Upgrade - @blackdenc
+- (#39) 🔒 Verify incoming Coordinator requests - @dankolbman
+- (#38) 📝 Update readme with new coordinator docs - @dankolbman
+
 # Kids First Task Release Reports Release 1.3.0
 
 ## Features
