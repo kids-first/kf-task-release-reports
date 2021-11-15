@@ -1,5 +1,5 @@
 zappa==0.48.2
-pip==9.0.3
+pip==21.1
 Flask==1.1.1
 PyJWT==1.7.1
 cffi==1.12.3
